@@ -4092,7 +4092,7 @@ void asus_adapter_adc_work(struct work_struct *work)
 		break;
 
 	case OTHERS:
-		usb_max_current = ICL_2000mA;
+			usb_max_current = ICL_2000mA;
 		break;
 
 	case ADC_NOT_READY:
