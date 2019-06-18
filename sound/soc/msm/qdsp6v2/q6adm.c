@@ -26,7 +26,6 @@
 #include <sound/audio_cal_utils.h>
 #include <sound/asound.h>
 #include <sound/q6core.h>
-#include <sound/msm-dts-eagle.h>
 #include "msm-dts-srs-tm-config.h"
 #include <sound/adsp_err.h>
 
@@ -2884,13 +2883,6 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 		 __func__, port_id, path, rate, channel_mode, perf_mode,
 		 topology);
 
-	/* For DTS EAGLE only, force 24 bit */
-	if ((topology == ADM_CMD_COPP_OPEN_TOPOLOGY_ID_DTS_HPX) &&
-		(perf_mode == LEGACY_PCM_MODE)) {
-		bit_width = 24;
-		pr_debug("%s: Force open adm in 24-bit for DTS HPX topology 0x%x\n",
-			__func__, topology);
-	}
 	port_id = q6audio_convert_virtual_to_portid(port_id);
 	port_idx = adm_validate_and_get_port_index(port_id);
 	if (port_idx < 0) {
@@ -3464,21 +3456,6 @@ int adm_close(int port_id, int perf_mode, int copp_idx)
 			}
 		}
 
-		if ((perf_mode == LEGACY_PCM_MODE) &&
-		    (this_adm.outband_memmap.paddr != 0) &&
-		    (atomic_read(
-			&this_adm.copp.topology[port_idx][copp_idx]) ==
-			ADM_CMD_COPP_OPEN_TOPOLOGY_ID_DTS_HPX)) {
-			atomic_set(&this_adm.mem_map_index, ADM_DTS_EAGLE);
-			ret = adm_memory_unmap_regions();
-			if (ret < 0) {
-				pr_err("%s: adm mem unmmap err %d",
-					__func__, ret);
-			} else {
-				atomic_set(&this_adm.mem_map_handles
-					   [ADM_DTS_EAGLE], 0);
-			}
-		}
 
 		if ((afe_get_port_type(port_id) == MSM_AFE_PORT_TYPE_TX) &&
 		    this_adm.sourceTrackingData.memmap.paddr) {
@@ -3950,10 +3927,6 @@ static int adm_init_cal_data(void)
 		{NULL, NULL, cal_utils_match_buf_num} },
 
 		{{ADM_RTAC_APR_CAL_TYPE,
-		{NULL, NULL, NULL, NULL, NULL, NULL} },
-		{NULL, NULL, cal_utils_match_buf_num} },
-
-		{{DTS_EAGLE_CAL_TYPE,
 		{NULL, NULL, NULL, NULL, NULL, NULL} },
 		{NULL, NULL, cal_utils_match_buf_num} },
 
