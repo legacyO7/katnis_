@@ -193,11 +193,6 @@ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
 			return __is_bitmap_valid(sbi, blkaddr, type);
 		}
 		break;
-	case META_GENERIC:
-		if (unlikely(blkaddr < SEG0_BLKADDR(sbi) ||
-			blkaddr >= MAIN_BLKADDR(sbi)))
-			return false;
-		break;
 	default:
 		BUG();
 	}
@@ -876,8 +871,9 @@ static struct page *validate_checkpoint(struct f2fs_sb_info *sbi,
 		f2fs_put_page(cp_page_2, 1);
 		return cp_page_1;
 	}
+invalid_cp2:
 	f2fs_put_page(cp_page_2, 1);
-invalid_cp:
+invalid_cp1:
 	f2fs_put_page(cp_page_1, 1);
 	return NULL;
 }
