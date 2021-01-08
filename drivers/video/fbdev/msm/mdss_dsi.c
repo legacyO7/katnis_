@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2012-2020, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
->>>>>>> kernel.lnx.4.4.r40-rel
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and

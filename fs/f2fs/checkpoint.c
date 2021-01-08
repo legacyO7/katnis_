@@ -855,7 +855,7 @@ static struct page *validate_checkpoint(struct f2fs_sb_info *sbi,
 					sbi->blocks_per_seg) {
 		f2fs_warn(sbi, "invalid cp_pack_total_block_count:%u",
 			  le32_to_cpu(cp_block->cp_pack_total_block_count));
-		goto invalid_cp;
+		goto invalid_cp1;
 	}
 	pre_version = *version;
 
@@ -863,7 +863,7 @@ static struct page *validate_checkpoint(struct f2fs_sb_info *sbi,
 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
 					&cp_page_2, version);
 	if (err)
-		goto invalid_cp;
+		goto invalid_cp2;
 	cur_version = *version;
 
 	if (cur_version == pre_version) {

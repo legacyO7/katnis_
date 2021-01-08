@@ -661,20 +661,15 @@ int snd_rawmidi_output_params(struct snd_rawmidi_substream *substream,
 		return -EINVAL;
 	}
 	if (params->buffer_size != runtime->buffer_size) {
-		mutex_lock(&runtime->realloc_mutex);
 		newbuf = kzalloc(params->buffer_size, GFP_KERNEL);
-		if (!newbuf) {
-			mutex_unlock(&runtime->realloc_mutex);
+		if (!newbuf)
 			return -ENOMEM;
-		}
-
-		spin_lock_irqsave(&runtime->lock, flags);
+		spin_lock_irq(&runtime->lock);
 		if (runtime->buffer_ref) {
 			spin_unlock_irq(&runtime->lock);
 			kfree(newbuf);
 			return -EBUSY;
 		}
-
 		oldbuf = runtime->buffer;
 		runtime->buffer = newbuf;
 		runtime->buffer_size = params->buffer_size;
@@ -1005,10 +1000,8 @@ static long snd_rawmidi_kernel_read1(struct snd_rawmidi_substream *substream,
 		if (userbuf) {
 			spin_unlock_irqrestore(&runtime->lock, flags);
 			if (copy_to_user(userbuf + result,
-					 runtime->buffer + appl_ptr, count1)) {
-				mutex_unlock(&runtime->realloc_mutex);
+					 runtime->buffer + appl_ptr, count1))
 				err = -EFAULT;
-			}
 			spin_lock_irqsave(&runtime->lock, flags);
 			if (err)
 				goto out;
@@ -1019,8 +1012,6 @@ static long snd_rawmidi_kernel_read1(struct snd_rawmidi_substream *substream,
  out:
 	snd_rawmidi_buffer_unref(runtime);
 	spin_unlock_irqrestore(&runtime->lock, flags);
-	if (userbuf)
-		mutex_unlock(&runtime->realloc_mutex);
 	return result > 0 ? result : err;
 }
 
